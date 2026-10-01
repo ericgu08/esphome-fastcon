@@ -131,17 +131,19 @@ class FastconController : public Component {
 
 class FastconSpeedNumber : public number::Number {
  public:
-  FastconSpeedNumber(
-      FastconController *controller,
-      uint32_t light_id)
-      : controller_(controller),
-        light_id_(light_id) {}
+  void set_controller(FastconController *controller) {
+    controller_ = controller;
+  }
+
+  void set_light_id(uint32_t light_id) {
+    light_id_ = light_id;
+  }
 
  protected:
   void control(float value) override;
 
-  FastconController *controller_;
-  uint32_t light_id_;
+  FastconController *controller_{nullptr};
+  uint32_t light_id_{0};
 };
 
 
