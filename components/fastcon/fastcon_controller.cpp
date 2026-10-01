@@ -18,6 +18,54 @@ namespace fastcon {
 
 static const char *const TAG = "fastcon.controller";
 
+static uint8_t calculate_effect_color_count(
+    const std::array<uint8_t, 6> &sequence) {
+
+  // BRmesh reserves two states:
+  //
+  //   current_color -> sequence[0]
+  //
+  // Therefore the minimum is always 2 states.
+  //
+  // For a one-color effect:
+  //
+  //   current_color -> OFF
+  //
+  // sequence[0] == 0 is therefore meaningful and must NOT
+  // be treated as an unused slot.
+
+  uint8_t color_count = 2;
+
+  for (size_t i = 1; i < sequence.size(); i++) {
+    if (sequence[i] != 0) {
+      color_count++;
+    }
+  }
+
+  return color_count;
+}
+
+
+static uint8_t calculate_effect_header(
+    const std::array<uint8_t, 6> &sequence) {
+
+  const uint8_t color_count =
+      calculate_effect_color_count(sequence);
+
+  // Confirmed BRmesh values:
+  //
+  // 2 states -> 0x48
+  // 3 states -> 0x58
+  // 4 states -> 0x68
+  // 5 states -> 0x78
+  // 6 states -> 0x88
+  // 7 states -> 0x98
+  //
+  // The protocol reserves 0x48 as the minimum.
+
+  return static_cast<uint8_t>(
+      0x48 + ((color_count - 2) * 0x10));
+}
 
 // ============================================================================
 // Queue
@@ -665,8 +713,11 @@ void FullColorFadeAction::play() {
             light_id_);
   }
 
+  const uint8_t effect_mode =
+      calculate_effect_header(sequence_);
+
   std::vector<uint8_t> effect_data = {
-      0x98,
+      effect_mode,
       static_cast<uint8_t>(
           light_id_ & 0xFF),
       speed,
@@ -715,8 +766,11 @@ void FullColorFlashAction::play() {
       static_cast<uint8_t>(
           0xCA - (2 * speed));
 
+  const uint8_t effect_mode =
+      calculate_effect_header(sequence_);
+
   std::vector<uint8_t> effect_data = {
-      0x98,
+      effect_mode,
       static_cast<uint8_t>(
           light_id_ & 0xFF),
       protocol_speed,
