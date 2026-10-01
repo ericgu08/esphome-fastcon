@@ -6,8 +6,9 @@
 #include <vector>
 
 #include "esphome/core/component.h"
-#include "esphome/components/esp32_ble_server/ble_server.h"
 #include "esphome/core/automation.h"
+#include "esphome/components/esp32_ble_server/ble_server.h"
+
 
 namespace esphome {
 namespace fastcon {
@@ -112,7 +113,7 @@ class FastconController : public Component {
   static const uint16_t MANUFACTURER_DATA_ID = 0xfff0;
 };
 
-class SimpleColorFadeAction : public automation::Action<> {
+class SimpleColorFadeAction : public esphome::automation::Action<> {
  public:
   explicit SimpleColorFadeAction(FastconController *controller)
       : controller_(controller) {}
