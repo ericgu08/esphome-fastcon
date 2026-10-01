@@ -517,10 +517,9 @@ std::vector<uint8_t> effect_data = {
 
   ESP_LOGD(
       TAG,
-      "Full Color Flash: light=%u speed=%u protocol_speed=0x%02X current_color=%u",
+      "Full Color Flash: light=%u speed=%u current_color=%u",
       (unsigned)this->light_id_,
       (unsigned)this->speed_,
-      (unsigned)protocol_speed,
       (unsigned)this->current_color_);
 }
 
