@@ -153,9 +153,8 @@ class FastconSpeedNumber : public number::Number {
 
 class SimpleColorFadeAction : public esphome::Action<> {
  public:
-  void set_controller(FastconController *controller) {
-    controller_ = controller;
-  }
+  explicit SimpleColorFadeAction(FastconController *controller)
+      : controller_(controller) {}
 
   void set_light_id(uint32_t light_id) {
     light_id_ = light_id;
@@ -172,7 +171,7 @@ class SimpleColorFadeAction : public esphome::Action<> {
  protected:
   void play() override;
 
-  FastconController *controller_{nullptr};
+  FastconController *controller_;
   uint32_t light_id_{0};
   uint8_t color_{1};
   uint8_t speed_{0};
@@ -185,9 +184,8 @@ class SimpleColorFadeAction : public esphome::Action<> {
 
 class FullColorFadeAction : public esphome::Action<> {
  public:
-  void set_controller(FastconController *controller) {
-    controller_ = controller;
-  }
+  explicit FullColorFadeAction(FastconController *controller)
+      : controller_(controller) {}
 
   void set_light_id(uint32_t light_id) {
     light_id_ = light_id;
@@ -197,14 +195,28 @@ class FullColorFadeAction : public esphome::Action<> {
     current_color_ = color;
   }
 
-  void set_sequence(const std::array<uint8_t, 6> &sequence) {
-    sequence_ = sequence;
+  void set_sequence_0(uint8_t value) {
+    sequence_[0] = value;
   }
 
-  void set_sequence(const std::vector<uint8_t> &sequence) {
-    for (size_t i = 0; i < 6 && i < sequence.size(); i++) {
-      sequence_[i] = sequence[i];
-    }
+  void set_sequence_1(uint8_t value) {
+    sequence_[1] = value;
+  }
+
+  void set_sequence_2(uint8_t value) {
+    sequence_[2] = value;
+  }
+
+  void set_sequence_3(uint8_t value) {
+    sequence_[3] = value;
+  }
+
+  void set_sequence_4(uint8_t value) {
+    sequence_[4] = value;
+  }
+
+  void set_sequence_5(uint8_t value) {
+    sequence_[5] = value;
   }
 
   void set_speed(uint8_t speed) {
@@ -214,7 +226,7 @@ class FullColorFadeAction : public esphome::Action<> {
  protected:
   void play() override;
 
-  FastconController *controller_{nullptr};
+  FastconController *controller_;
   uint32_t light_id_{0};
 
   uint8_t current_color_{1};
@@ -232,9 +244,8 @@ class FullColorFadeAction : public esphome::Action<> {
 
 class FullColorFlashAction : public esphome::Action<> {
  public:
-  void set_controller(FastconController *controller) {
-    controller_ = controller;
-  }
+  explicit FullColorFlashAction(FastconController *controller)
+      : controller_(controller) {}
 
   void set_light_id(uint32_t light_id) {
     light_id_ = light_id;
@@ -244,14 +255,28 @@ class FullColorFlashAction : public esphome::Action<> {
     current_color_ = color;
   }
 
-  void set_sequence(const std::array<uint8_t, 6> &sequence) {
-    sequence_ = sequence;
+  void set_sequence_0(uint8_t value) {
+    sequence_[0] = value;
   }
 
-  void set_sequence(const std::vector<uint8_t> &sequence) {
-    for (size_t i = 0; i < 6 && i < sequence.size(); i++) {
-      sequence_[i] = sequence[i];
-    }
+  void set_sequence_1(uint8_t value) {
+    sequence_[1] = value;
+  }
+
+  void set_sequence_2(uint8_t value) {
+    sequence_[2] = value;
+  }
+
+  void set_sequence_3(uint8_t value) {
+    sequence_[3] = value;
+  }
+
+  void set_sequence_4(uint8_t value) {
+    sequence_[4] = value;
+  }
+
+  void set_sequence_5(uint8_t value) {
+    sequence_[5] = value;
   }
 
   void set_speed(uint8_t speed) {
@@ -261,7 +286,8 @@ class FullColorFlashAction : public esphome::Action<> {
  protected:
   void play() override;
 
-  FastconController *controller_{nullptr};
+  FastconController *controller_;
+
   uint32_t light_id_{0};
 
   uint8_t current_color_{1};
