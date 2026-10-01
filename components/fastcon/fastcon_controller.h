@@ -113,7 +113,7 @@ class FastconController : public Component {
   static const uint16_t MANUFACTURER_DATA_ID = 0xfff0;
 };
 
-class SimpleColorFadeAction : public esphome::automation::Action<> {
+class SimpleColorFadeAction : public esphome::Action<> {
  public:
   explicit SimpleColorFadeAction(FastconController *controller)
       : controller_(controller) {}
