@@ -172,10 +172,16 @@ class FullColorFadeAction : public Action<> {
     current_color_ = color;
   }
 
-  void set_sequence(
-      const std::array<uint8_t, 6> &sequence) {
-    sequence_ = sequence;
-  }
+void set_sequence_0(uint8_t value) { sequence_[0] = value; }
+void set_sequence_1(uint8_t value) { sequence_[1] = value; }
+void set_sequence_2(uint8_t value) { sequence_[2] = value; }
+void set_sequence_3(uint8_t value) { sequence_[3] = value; }
+void set_sequence_4(uint8_t value) { sequence_[4] = value; }
+void set_sequence_5(uint8_t value) { sequence_[5] = value; }
+
+void set_sequence(const std::array<uint8_t, 6> &sequence) {
+  sequence_ = sequence;
+}
 
  protected:
   FastconController *controller_{nullptr};
@@ -212,10 +218,16 @@ class FullColorFlashAction : public Action<> {
     current_color_ = color;
   }
 
-  void set_sequence(
-      const std::array<uint8_t, 6> &sequence) {
-    sequence_ = sequence;
-  }
+void set_sequence_0(uint8_t value) { sequence_[0] = value; }
+void set_sequence_1(uint8_t value) { sequence_[1] = value; }
+void set_sequence_2(uint8_t value) { sequence_[2] = value; }
+void set_sequence_3(uint8_t value) { sequence_[3] = value; }
+void set_sequence_4(uint8_t value) { sequence_[4] = value; }
+void set_sequence_5(uint8_t value) { sequence_[5] = value; }
+
+void set_sequence(const std::array<uint8_t, 6> &sequence) {
+  sequence_ = sequence;
+}
 
  protected:
   FastconController *controller_{nullptr};
