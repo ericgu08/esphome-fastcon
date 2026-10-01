@@ -18,10 +18,10 @@ FastconSpeedNumber = fastcon_ns.class_(
     number.Number,
 )
 
-
 CONFIG_SCHEMA = number.number_schema(FastconSpeedNumber).extend(
     {
-        cv.Required(CONF_CONTROLLER_ID): cv.use_id(FastconController),
+        cv.Required(CONF_CONTROLLER_ID):
+            cv.use_id(FastconController),
 
         cv.Required(CONF_LIGHT_ID):
             cv.int_range(min=1, max=255),
@@ -47,5 +47,3 @@ async def to_code(config):
 
     cg.add(var.set_controller(controller))
     cg.add(var.set_light_id(config[CONF_LIGHT_ID]))
-
-    await cg.register_component(var, config)
