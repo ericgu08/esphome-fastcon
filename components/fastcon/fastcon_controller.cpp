@@ -290,7 +290,15 @@ std::vector<uint8_t> FastconController::effect_control(
 
 std::vector<uint8_t> FastconController::generate_command(uint8_t n, uint32_t light_id_, const std::vector<uint8_t> &data, bool forward) {
   static uint8_t sequence = 0;
-
+  
+  ESP_LOGD(
+    TAG,
+    "generate_command: n=%u light_id=%u data_size=%zu forward=%s",
+    (unsigned)n,
+    (unsigned)light_id_,
+    data.size(),
+    forward ? "YES" : "NO");
+  
   // Create command body with header
   std::vector<uint8_t> body(data.size() + 4);
   uint8_t i2 = (light_id_ / 256);
@@ -300,6 +308,12 @@ std::vector<uint8_t> FastconController::generate_command(uint8_t n, uint32_t lig
   body[1] = sequence++;
   if (sequence >= 255) sequence = 1;
   body[2] = this->mesh_key_[3];  // Safe key
+
+  ESP_LOGD(
+    TAG,
+    "BRmesh header: 0x%02X (light_id=%u)",
+    body[0],
+    (unsigned)light_id_);
 
   // Copy data
   std::copy(data.begin(), data.end(), body.begin() + 4);
