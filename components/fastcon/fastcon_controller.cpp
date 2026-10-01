@@ -26,6 +26,11 @@ void FastconController::queueCommand(uint32_t light_id_, const std::vector<uint8
   cmd.timestamp = millis();
   cmd.retries = 0;
   queue_.push(cmd);
+  ESP_LOGI(TAG,
+         "QUEUE t=%u ms light=%u size=%u",
+         millis(),
+         (unsigned)light_id_,
+         (unsigned)data.size());
   ESP_LOGV(TAG, "Command queued, queue size: %d", (int)queue_.size());
 }
 
@@ -50,7 +55,10 @@ void FastconController::loop() {
       if (queue_.empty()) return;
       Command cmd = queue_.front();
       queue_.pop();
-
+ESP_LOGI(TAG,
+         "DEQUEUE t=%u ms queue=%u",
+         millis(),
+         (unsigned)queue_.size());
       esp_ble_adv_params_t adv_params = {
           .adv_int_min = adv_interval_min_,
           .adv_int_max = adv_interval_max_,
@@ -77,12 +85,18 @@ void FastconController::loop() {
       adv_data_raw[adv_data_len++] = (MANUFACTURER_DATA_ID >> 8) & 0xFF;
       memcpy(&adv_data_raw[adv_data_len], cmd.data.data(), cmd.data.size());
       adv_data_len += cmd.data.size();
-
+ESP_LOGI(TAG,
+         "ADV_CONFIG t=%u ms size=%u",
+         millis(),
+         (unsigned)adv_data_len);
       esp_err_t err = esp_ble_gap_config_adv_data_raw(adv_data_raw, adv_data_len);
       if (err != ESP_OK) {
         ESP_LOGW(TAG, "Error setting raw advertisement data (err=%d): %s", err, esp_err_to_name(err));
         return;
       }
+      ESP_LOGI(TAG,
+         "ADV_START t=%u ms",
+         millis());
       err = esp_ble_gap_start_advertising(&adv_params);
       if (err != ESP_OK) {
         ESP_LOGW(TAG, "Error starting advertisement (err=%d): %s", err, esp_err_to_name(err));
