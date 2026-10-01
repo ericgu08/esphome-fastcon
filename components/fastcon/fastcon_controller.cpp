@@ -484,25 +484,20 @@ void FullColorFlashAction::play() {
   // speed 50  -> 66
   // speed 100 -> 02
 
-  const uint8_t protocol_speed =
-      static_cast<uint8_t>(
-          0xCA - (2 * this->speed_));
-
-  std::vector<uint8_t> effect_data = {
-      0x88,
-      this->light_id_,
-      protocol_speed,
-      static_cast<uint8_t>(
-          0xC0 | this->current_color_),
-      this->sequence_[0],
-      this->sequence_[1],
-      this->sequence_[2],
-      this->sequence_[3],
-      this->sequence_[4],
-      this->sequence_[5],
-      0x00,
-      0x00
-  };
+std::vector<uint8_t> effect_data = {
+    0x98,
+    static_cast<uint8_t>(this->light_id_ & 0xFF),
+    this->speed_,
+    static_cast<uint8_t>(0x40 | this->current_color_),
+    this->sequence_[0],
+    this->sequence_[1],
+    this->sequence_[2],
+    this->sequence_[3],
+    this->sequence_[4],
+    this->sequence_[5],
+    0x00,
+    0x00
+};
 
   std::vector<uint8_t> payload =
       this->controller_->effect_control(
