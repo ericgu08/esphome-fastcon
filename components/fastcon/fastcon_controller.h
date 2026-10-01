@@ -7,6 +7,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/esp32_ble_server/ble_server.h"
+#include "esphome/core/automation.h"
 
 namespace esphome {
 namespace fastcon {
@@ -109,6 +110,32 @@ class FastconController : public Component {
   uint16_t adv_gap_{10};
 
   static const uint16_t MANUFACTURER_DATA_ID = 0xfff0;
+};
+
+class SimpleColorFadeAction : public automation::Action<> {
+ public:
+  explicit SimpleColorFadeAction(FastconController *controller)
+      : controller_(controller) {}
+
+  void set_light_id(uint8_t light_id) {
+    light_id_ = light_id;
+  }
+
+  void set_speed(uint8_t speed) {
+    speed_ = speed;
+  }
+
+  void set_color(uint8_t color) {
+    color_ = color;
+  }
+
+  void play() override;
+
+ protected:
+  FastconController *controller_;
+  uint8_t light_id_{0};
+  uint8_t speed_{1};
+  uint8_t color_{1};
 };
 
 }  // namespace fastcon
