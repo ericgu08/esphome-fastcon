@@ -488,7 +488,7 @@ std::vector<uint8_t> effect_data = {
     0x98,
     static_cast<uint8_t>(this->light_id_ & 0xFF),
     this->speed_,
-    static_cast<uint8_t>(0x40 | this->current_color_),
+    static_cast<uint8_t>(0xC0 | this->current_color_),
     this->sequence_[0],
     this->sequence_[1],
     this->sequence_[2],
