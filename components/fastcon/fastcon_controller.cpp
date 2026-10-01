@@ -369,5 +369,148 @@ void SimpleColorFadeAction::play() {
       (unsigned)this->speed_,
       (unsigned)this->color_);
 }
+void FullColorFadeAction::play() {
+  if (this->controller_ == nullptr) {
+    ESP_LOGW(
+        TAG,
+        "No controller bound; dropping Full Color Fade");
+    return;
+  }
+
+  if (this->speed_ < 1 || this->speed_ > 100) {
+    ESP_LOGW(
+        TAG,
+        "Invalid Full Color Fade speed: %u",
+        (unsigned)this->speed_);
+    return;
+  }
+
+  if (this->current_color_ < 1 ||
+      this->current_color_ > 7) {
+    ESP_LOGW(
+        TAG,
+        "Invalid Full Color Fade current color: %u",
+        (unsigned)this->current_color_);
+    return;
+  }
+
+  std::vector<uint8_t> effect_data = {
+      0x98,
+      0x03,
+      this->speed_,
+      static_cast<uint8_t>(0x40 | this->current_color_),
+      this->sequence_[0],
+      this->sequence_[1],
+      this->sequence_[2],
+      this->sequence_[3],
+      this->sequence_[4],
+      this->sequence_[5],
+      0x00,
+      0x00
+  };
+
+  std::vector<uint8_t> payload =
+      this->controller_->effect_control(
+          this->light_id_,
+          effect_data);
+
+  if (payload.empty()) {
+    ESP_LOGW(
+        TAG,
+        "Failed to generate Full Color Fade");
+    return;
+  }
+
+  this->controller_->queueCommand(
+      this->light_id_,
+      payload);
+
+  ESP_LOGD(
+      TAG,
+      "Full Color Fade: light=%u speed=%u current_color=%u",
+      (unsigned)this->light_id_,
+      (unsigned)this->speed_,
+      (unsigned)this->current_color_);
+}
+void FullColorFlashAction::play() {
+  if (this->controller_ == nullptr) {
+    ESP_LOGW(
+        TAG,
+        "No controller bound; dropping Full Color Flash");
+    return;
+  }
+
+  if (this->speed_ < 1 || this->speed_ > 100) {
+    ESP_LOGW(
+        TAG,
+        "Invalid Full Color Flash speed: %u",
+        (unsigned)this->speed_);
+    return;
+  }
+
+  if (this->current_color_ < 1 ||
+      this->current_color_ > 7) {
+    ESP_LOGW(
+        TAG,
+        "Invalid Full Color Flash current color: %u",
+        (unsigned)this->current_color_);
+    return;
+  }
+
+  // BRmesh Flash:
+  //
+  // protocol_speed = 0xCA - (2 * user_speed)
+  //
+  // speed 1   -> C8
+  // speed 20  -> A2
+  // speed 40  -> 7A
+  // speed 50  -> 66
+  // speed 100 -> 02
+
+  const uint8_t protocol_speed =
+      static_cast<uint8_t>(
+          0xCA - (2 * this->speed_));
+
+  std::vector<uint8_t> effect_data = {
+      0x88,
+      0x03,
+      protocol_speed,
+      static_cast<uint8_t>(
+          0xC0 | this->current_color_),
+      this->sequence_[0],
+      this->sequence_[1],
+      this->sequence_[2],
+      this->sequence_[3],
+      this->sequence_[4],
+      this->sequence_[5],
+      0x00,
+      0x00
+  };
+
+  std::vector<uint8_t> payload =
+      this->controller_->effect_control(
+          this->light_id_,
+          effect_data);
+
+  if (payload.empty()) {
+    ESP_LOGW(
+        TAG,
+        "Failed to generate Full Color Flash");
+    return;
+  }
+
+  this->controller_->queueCommand(
+      this->light_id_,
+      payload);
+
+  ESP_LOGD(
+      TAG,
+      "Full Color Flash: light=%u speed=%u protocol_speed=0x%02X current_color=%u",
+      (unsigned)this->light_id_,
+      (unsigned)this->speed_,
+      (unsigned)protocol_speed,
+      (unsigned)this->current_color_);
+}
+
 } // namespace fastcon
 } // namespace esphome
