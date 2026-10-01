@@ -301,10 +301,13 @@ std::vector<uint8_t> FastconController::generate_command(uint8_t n, uint32_t lig
   
   // Create command body with header
   std::vector<uint8_t> body(data.size() + 4);
-  uint8_t i2 = (light_id_ / 256);
+  uint8_t i2 = static_cast<uint8_t>((light_id_ >> 8) & 0x0F);
 
   // Header
-  body[0] = (i2 & 0b1111) | ((n & 0b111) << 4) | (forward ? 0x80 : 0);
+  body[0] =
+    i2 |
+    ((n & 0x07) << 4) |
+    (forward ? 0x80 : 0);
   body[1] = sequence++;
   if (sequence >= 255) sequence = 1;
   body[2] = this->mesh_key_[3];  // Safe key
@@ -347,7 +350,7 @@ void SimpleColorFadeAction::play() {
 
   std::vector<uint8_t> effect_data = {
       0x48,
-      0x03,
+      this->light_id_,
       this->speed_,
       static_cast<uint8_t>(0x40 | this->color_),
       0x00,
@@ -410,7 +413,7 @@ void FullColorFadeAction::play() {
 
   std::vector<uint8_t> effect_data = {
       0x98,
-      0x03,
+      this->light_id_,
       this->speed_,
       static_cast<uint8_t>(0x40 | this->current_color_),
       this->sequence_[0],
@@ -487,7 +490,7 @@ void FullColorFlashAction::play() {
 
   std::vector<uint8_t> effect_data = {
       0x88,
-      0x03,
+      this->light_id_,
       protocol_speed,
       static_cast<uint8_t>(
           0xC0 | this->current_color_),
