@@ -389,40 +389,26 @@ std::vector<uint8_t> FastconController::get_light_data(
   float warm_white;
 
   state->current_values_as_rgbww(
-      red,
-      green,
-      blue,
-      cold_white,
-      warm_white,
+      &red,
+      &green,
+      &blue,
+      &cold_white,
+      &warm_white,
       true);
 
-  const bool has_cwww =
-      state->get_min_mireds() > 0;
+  // Fastcon light protocol is handled as RGB here.
+  // If the RGB channels are all zero while the light is on,
+  // use full white as the fallback.
+  if (all_zero(
+          red,
+          green,
+          blue,
+          cold_white,
+          warm_white)) {
 
-  if (has_cwww) {
-    if (all_zero(
-            red,
-            green,
-            blue,
-            cold_white,
-            warm_white)) {
-
-      red = warm_white;
-      green = warm_white;
-      blue = warm_white;
-    }
-  } else {
-    if (all_zero(
-            red,
-            green,
-            blue,
-            cold_white,
-            warm_white)) {
-
-      red = 1.0f;
-      green = 1.0f;
-      blue = 1.0f;
-    }
+    red = 1.0f;
+    green = 1.0f;
+    blue = 1.0f;
   }
 
   const uint8_t brightness =
@@ -443,7 +429,6 @@ std::vector<uint8_t> FastconController::get_light_data(
       to8(cold_white),
   };
 }
-
 
 std::vector<uint8_t> FastconController::get_white_light_data(
     light::LightState *state) {
@@ -529,7 +514,7 @@ std::vector<uint8_t> FastconController::effect_control(
       TAG,
       "Effect light=%lu data=%s",
       (unsigned long) light_id,
-      hex_vec.c_str());
+      hex_vec.data());
 
   return generate_command(
       5,
