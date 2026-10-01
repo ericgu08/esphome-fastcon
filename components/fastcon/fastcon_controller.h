@@ -1,14 +1,14 @@
 #pragma once
 
 #include <array>
-#include <mutex>
 #include <queue>
+#include <mutex>
 #include <vector>
 
-#include "esphome/core/automation.h"
 #include "esphome/core/component.h"
-#include "esphome/components/light/light_state.h"
+#include "esphome/core/automation.h"
 #include "esphome/components/esp32_ble_server/ble_server.h"
+#include "esphome/components/number/number.h"
 
 namespace esphome {
 namespace fastcon {
@@ -62,9 +62,8 @@ class FastconController : public Component {
   void set_adv_interval_max(uint16_t val) {
     adv_interval_max_ = val;
 
-    if (adv_interval_max_ < adv_interval_min_) {
+    if (adv_interval_max_ < adv_interval_min_)
       adv_interval_max_ = adv_interval_min_;
-    }
   }
 
   void set_adv_duration(uint16_t val) {
@@ -74,6 +73,14 @@ class FastconController : public Component {
   void set_adv_gap(uint16_t val) {
     adv_gap_ = val;
   }
+
+  // --------------------------------------------------------------------------
+  // Effect speed
+  // --------------------------------------------------------------------------
+
+  void set_effect_speed(uint32_t light_id, uint8_t speed);
+
+  uint8_t get_effect_speed(uint32_t light_id) const;
 
  protected:
   struct Command {
@@ -86,7 +93,6 @@ class FastconController : public Component {
 
   std::queue<Command> queue_;
   mutable std::mutex queue_mutex_;
-
   size_t max_queue_size_{100};
 
   enum class AdvertiseState {
@@ -96,7 +102,6 @@ class FastconController : public Component {
   };
 
   AdvertiseState adv_state_{AdvertiseState::IDLE};
-
   uint32_t state_start_time_{0};
 
   std::vector<uint8_t> generate_command(
@@ -109,11 +114,34 @@ class FastconController : public Component {
 
   uint16_t adv_interval_min_{0x20};
   uint16_t adv_interval_max_{0x40};
-
   uint16_t adv_duration_{50};
   uint16_t adv_gap_{10};
 
-  static const uint16_t MANUFACTURER_DATA_ID = 0xFFF0;
+  // Effect speed for light IDs 0..255.
+  // Valid user values are 1..100.
+  std::array<uint8_t, 256> effect_speeds_{};
+
+  static const uint16_t MANUFACTURER_DATA_ID = 0xfff0;
+};
+
+
+// ============================================================================
+// Fastcon speed number
+// ============================================================================
+
+class FastconSpeedNumber : public number::Number {
+ public:
+  FastconSpeedNumber(
+      FastconController *controller,
+      uint32_t light_id)
+      : controller_(controller),
+        light_id_(light_id) {}
+
+ protected:
+  void control(float value) override;
+
+  FastconController *controller_;
+  uint32_t light_id_;
 };
 
 
@@ -121,31 +149,33 @@ class FastconController : public Component {
 // Simple Color Fade
 // ============================================================================
 
-class SimpleColorFadeAction : public Action<> {
+class SimpleColorFadeAction : public esphome::Action<> {
  public:
   explicit SimpleColorFadeAction(FastconController *controller)
       : controller_(controller) {}
 
+  void set_light_id(uint32_t value) {
+    light_id_ = value;
+  }
+
+  void set_speed(uint8_t value) {
+    speed_ = value;
+  }
+
+  void set_color(uint8_t value) {
+    color_ = value;
+  }
+
   void play() override;
 
-  void set_light_id(uint32_t light_id) {
-    light_id_ = light_id;
-  }
-
-  void set_speed(uint8_t speed) {
-    speed_ = speed;
-  }
-
-  void set_color(uint8_t color) {
-    color_ = color;
-  }
-
  protected:
-  FastconController *controller_{nullptr};
+  FastconController *controller_;
+  uint32_t light_id_{1};
 
-  uint32_t light_id_{0};
-  uint8_t speed_{1};
-  uint8_t color_{1};
+  // 0 = use controller / Home Assistant slider
+  uint8_t speed_{0};
+
+  uint8_t color_{0};
 };
 
 
@@ -153,45 +183,63 @@ class SimpleColorFadeAction : public Action<> {
 // Full Color Fade
 // ============================================================================
 
-class FullColorFadeAction : public Action<> {
+class FullColorFadeAction : public esphome::Action<> {
  public:
   explicit FullColorFadeAction(FastconController *controller)
       : controller_(controller) {}
 
+  void set_light_id(uint32_t value) {
+    light_id_ = value;
+  }
+
+  void set_speed(uint8_t value) {
+    speed_ = value;
+  }
+
+  void set_current_color(uint8_t value) {
+    current_color_ = value;
+  }
+
+  // Keep individual setters because ESPHome code generation uses them.
+  void set_sequence_0(uint8_t value) {
+    sequence_[0] = value;
+  }
+
+  void set_sequence_1(uint8_t value) {
+    sequence_[1] = value;
+  }
+
+  void set_sequence_2(uint8_t value) {
+    sequence_[2] = value;
+  }
+
+  void set_sequence_3(uint8_t value) {
+    sequence_[3] = value;
+  }
+
+  void set_sequence_4(uint8_t value) {
+    sequence_[4] = value;
+  }
+
+  void set_sequence_5(uint8_t value) {
+    sequence_[5] = value;
+  }
+
   void play() override;
 
-  void set_light_id(uint32_t light_id) {
-    light_id_ = light_id;
-  }
-
-  void set_speed(uint8_t speed) {
-    speed_ = speed;
-  }
-
-  void set_current_color(uint8_t color) {
-    current_color_ = color;
-  }
-
-void set_sequence_0(uint8_t value) { sequence_[0] = value; }
-void set_sequence_1(uint8_t value) { sequence_[1] = value; }
-void set_sequence_2(uint8_t value) { sequence_[2] = value; }
-void set_sequence_3(uint8_t value) { sequence_[3] = value; }
-void set_sequence_4(uint8_t value) { sequence_[4] = value; }
-void set_sequence_5(uint8_t value) { sequence_[5] = value; }
-
-void set_sequence(const std::array<uint8_t, 6> &sequence) {
-  sequence_ = sequence;
-}
-
  protected:
-  FastconController *controller_{nullptr};
+  FastconController *controller_;
 
-  uint32_t light_id_{0};
-  uint8_t speed_{1};
+  uint32_t light_id_{1};
+
+  // 0 = use controller / Home Assistant slider
+  uint8_t speed_{0};
+
   uint8_t current_color_{1};
 
-  std::array<uint8_t, 6> sequence_{
-      {1, 2, 3, 4, 5, 6}};
+  std::array<uint8_t, 6> sequence_{{
+      1, 2, 3, 4, 5, 6
+  }};
 };
 
 
@@ -199,45 +247,63 @@ void set_sequence(const std::array<uint8_t, 6> &sequence) {
 // Full Color Flash
 // ============================================================================
 
-class FullColorFlashAction : public Action<> {
+class FullColorFlashAction : public esphome::Action<> {
  public:
   explicit FullColorFlashAction(FastconController *controller)
       : controller_(controller) {}
 
+  void set_light_id(uint32_t value) {
+    light_id_ = value;
+  }
+
+  void set_speed(uint8_t value) {
+    speed_ = value;
+  }
+
+  void set_current_color(uint8_t value) {
+    current_color_ = value;
+  }
+
+  // Keep individual setters because ESPHome code generation uses them.
+  void set_sequence_0(uint8_t value) {
+    sequence_[0] = value;
+  }
+
+  void set_sequence_1(uint8_t value) {
+    sequence_[1] = value;
+  }
+
+  void set_sequence_2(uint8_t value) {
+    sequence_[2] = value;
+  }
+
+  void set_sequence_3(uint8_t value) {
+    sequence_[3] = value;
+  }
+
+  void set_sequence_4(uint8_t value) {
+    sequence_[4] = value;
+  }
+
+  void set_sequence_5(uint8_t value) {
+    sequence_[5] = value;
+  }
+
   void play() override;
 
-  void set_light_id(uint32_t light_id) {
-    light_id_ = light_id;
-  }
-
-  void set_speed(uint8_t speed) {
-    speed_ = speed;
-  }
-
-  void set_current_color(uint8_t color) {
-    current_color_ = color;
-  }
-
-void set_sequence_0(uint8_t value) { sequence_[0] = value; }
-void set_sequence_1(uint8_t value) { sequence_[1] = value; }
-void set_sequence_2(uint8_t value) { sequence_[2] = value; }
-void set_sequence_3(uint8_t value) { sequence_[3] = value; }
-void set_sequence_4(uint8_t value) { sequence_[4] = value; }
-void set_sequence_5(uint8_t value) { sequence_[5] = value; }
-
-void set_sequence(const std::array<uint8_t, 6> &sequence) {
-  sequence_ = sequence;
-}
-
  protected:
-  FastconController *controller_{nullptr};
+  FastconController *controller_;
 
-  uint32_t light_id_{0};
-  uint8_t speed_{1};
+  uint32_t light_id_{1};
+
+  // 0 = use controller / Home Assistant slider
+  uint8_t speed_{0};
+
   uint8_t current_color_{1};
 
-  std::array<uint8_t, 6> sequence_{
-      {1, 2, 3, 4, 5, 6}};
+  std::array<uint8_t, 6> sequence_{{
+      1, 2, 3, 4, 5, 6
+  }};
 };
 
 }  // namespace fastcon
