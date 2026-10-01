@@ -124,7 +124,7 @@ void FastconController::loop() {
 
       ESP_LOGI(
           TAG,
-          "DEQUEUE t=%u ms queue=%u",
+          "DEQUEUE t=%lu ms queue=%u",
           (unsigned long)millis(),
           (unsigned) queue_.size());
 
