@@ -323,6 +323,51 @@ std::vector<uint8_t> FastconController::generate_command(uint8_t n, uint32_t lig
   std::vector<uint8_t> addr = {DEFAULT_BLE_FASTCON_ADDRESS.begin(), DEFAULT_BLE_FASTCON_ADDRESS.end()};
   return prepare_payload(addr, body);
 }
+void SimpleColorFadeAction::play() {
+  if (this->controller_ == nullptr) {
+    ESP_LOGW(
+        TAG,
+        "No controller bound; dropping Simple Color Fade");
+    return;
+  }
 
+  std::vector<uint8_t> effect_data = {
+      0x48,
+      0x03,
+      this->speed_,
+      static_cast<uint8_t>(0x40 | this->color_),
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00
+  };
+
+  std::vector<uint8_t> payload =
+      this->controller_->effect_control(
+          this->light_id_,
+          effect_data);
+
+  if (payload.empty()) {
+    ESP_LOGW(
+        TAG,
+        "Failed to generate Simple Color Fade");
+    return;
+  }
+
+  this->controller_->queueCommand(
+      this->light_id_,
+      payload);
+
+  ESP_LOGD(
+      TAG,
+      "Simple Color Fade: light=%u speed=%u color=%u",
+      (unsigned)this->light_id_,
+      (unsigned)this->speed_,
+      (unsigned)this->color_);
+}
 } // namespace fastcon
 } // namespace esphome
