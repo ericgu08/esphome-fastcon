@@ -29,6 +29,15 @@ SimpleColorFadeAction = fastcon_ns.class_(
     automation.Action,
 )
 
+FullColorFadeAction = fastcon_ns.class_(
+    "FullColorFadeAction",
+    automation.Action,
+)
+
+FullColorFlashAction = fastcon_ns.class_(
+    "FullColorFlashAction",
+    automation.Action,
+)
 
 CONFIG_SCHEMA = cv.All(
     light.BRIGHTNESS_ONLY_LIGHT_SCHEMA
@@ -151,5 +160,158 @@ async def simple_color_fade_to_code(
             config[CONF_COLOR]
         )
     )
+
+    return var
+
+# -----------------------------------------------------------------------------
+# BRmesh Full Color helpers
+# -----------------------------------------------------------------------------
+
+COLOR_INDEX_SCHEMA = cv.int_range(min=1, max=7)
+
+SEQUENCE_SCHEMA = cv.All(
+    cv.ensure_list(COLOR_INDEX_SCHEMA),
+    cv.Length(min=6, max=6),
+)
+
+
+# -----------------------------------------------------------------------------
+# Full Color Fade
+# -----------------------------------------------------------------------------
+
+@automation.register_action(
+    "fastcon.full_color_fade",
+    FullColorFadeAction,
+    cv.Schema(
+        {
+            cv.Required(CONF_CONTROLLER_ID):
+                cv.use_id(FastconController),
+
+            cv.Required(CONF_LIGHT_ID):
+                cv.int_range(min=1, max=255),
+
+            cv.Required(CONF_SPEED):
+                cv.int_range(min=1, max=100),
+
+            cv.Required("current_color"):
+                COLOR_INDEX_SCHEMA,
+
+            cv.Required("sequence"):
+                SEQUENCE_SCHEMA,
+        }
+    ),
+)
+async def full_color_fade_to_code(
+    config,
+    action_id,
+    template_arg,
+    args,
+):
+    controller = await cg.get_variable(
+        config[CONF_CONTROLLER_ID]
+    )
+
+    var = cg.new_Pvariable(
+        action_id,
+        controller,
+    )
+
+    cg.add(
+        var.set_light_id(
+            config[CONF_LIGHT_ID]
+        )
+    )
+
+    cg.add(
+        var.set_speed(
+            config[CONF_SPEED]
+        )
+    )
+
+    cg.add(
+        var.set_current_color(
+            config["current_color"]
+        )
+    )
+
+    sequence = config["sequence"]
+
+    cg.add(var.set_sequence_0(sequence[0]))
+    cg.add(var.set_sequence_1(sequence[1]))
+    cg.add(var.set_sequence_2(sequence[2]))
+    cg.add(var.set_sequence_3(sequence[3]))
+    cg.add(var.set_sequence_4(sequence[4]))
+    cg.add(var.set_sequence_5(sequence[5]))
+
+    return var
+
+
+# -----------------------------------------------------------------------------
+# Full Color Flash
+# -----------------------------------------------------------------------------
+
+@automation.register_action(
+    "fastcon.full_color_flash",
+    FullColorFlashAction,
+    cv.Schema(
+        {
+            cv.Required(CONF_CONTROLLER_ID):
+                cv.use_id(FastconController),
+
+            cv.Required(CONF_LIGHT_ID):
+                cv.int_range(min=1, max=255),
+
+            cv.Required(CONF_SPEED):
+                cv.int_range(min=1, max=100),
+
+            cv.Required("current_color"):
+                COLOR_INDEX_SCHEMA,
+
+            cv.Required("sequence"):
+                SEQUENCE_SCHEMA,
+        }
+    ),
+)
+async def full_color_flash_to_code(
+    config,
+    action_id,
+    template_arg,
+    args,
+):
+    controller = await cg.get_variable(
+        config[CONF_CONTROLLER_ID]
+    )
+
+    var = cg.new_Pvariable(
+        action_id,
+        controller,
+    )
+
+    cg.add(
+        var.set_light_id(
+            config[CONF_LIGHT_ID]
+        )
+    )
+
+    cg.add(
+        var.set_speed(
+            config[CONF_SPEED]
+        )
+    )
+
+    cg.add(
+        var.set_current_color(
+            config["current_color"]
+        )
+    )
+
+    sequence = config["sequence"]
+
+    cg.add(var.set_sequence_0(sequence[0]))
+    cg.add(var.set_sequence_1(sequence[1]))
+    cg.add(var.set_sequence_2(sequence[2]))
+    cg.add(var.set_sequence_3(sequence[3]))
+    cg.add(var.set_sequence_4(sequence[4]))
+    cg.add(var.set_sequence_5(sequence[5]))
 
     return var
