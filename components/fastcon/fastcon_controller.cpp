@@ -645,10 +645,11 @@ void SimpleColorFadeAction::play() {
       0,
   };
 
-  controller_->effect_control(
-      light_id_,
-      effect_data);
-}
+controller_->queueCommand(
+    light_id_,
+    controller_->effect_control(
+        light_id_,
+        effect_data));
 
 
 // ============================================================================
@@ -681,9 +682,11 @@ void FullColorFadeAction::play() {
       0,
   };
 
-  controller_->effect_control(
-      light_id_,
-      effect_data);
+controller_->queueCommand(
+    light_id_,
+    controller_->effect_control(
+        light_id_,
+        effect_data));
 }
 
 
@@ -729,9 +732,11 @@ void FullColorFlashAction::play() {
       0,
   };
 
-  controller_->effect_control(
-      light_id_,
-      effect_data);
+controller_->queueCommand(
+    light_id_,
+    controller_->effect_control(
+        light_id_,
+        effect_data));
 }
 
 }  // namespace fastcon
