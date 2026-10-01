@@ -114,7 +114,11 @@ void FastconController::loop() {
 
 // --- helpers for channel resolution ---
 static inline uint8_t to8(float v) {
-  if (v < 0.0f) v = 0.0f; if (v > 1.0f) v = 1.0f; return static_cast<uint8_t>(v * 255.0f + 0.5f);
+  if (v < 0.0f) v = 0.0f; 
+  
+  if (v > 1.0f) v = 1.0f; 
+  
+  return static_cast<uint8_t>(v * 255.0f + 0.5f);
 }
 
 static inline bool all_zero(float r, float g, float b, float cw, float ww) {
@@ -266,7 +270,9 @@ std::vector<uint8_t> FastconController::effect_control(
     return {};
   }
 
-  const auto hex_vec = vector_to_hex_string(effect_data);
+  std::vector<uint8_t> log_data = effect_data;
+
+  const auto hex_vec = vector_to_hex_string(log_data);
   const std::string hex(hex_vec.begin(), hex_vec.end());
 
   ESP_LOGD(
