@@ -138,6 +138,73 @@ class SimpleColorFadeAction : public esphome::Action<> {
   uint8_t speed_{1};
   uint8_t color_{1};
 };
+class FullColorFadeAction : public esphome::Action<> {
+ public:
+  explicit FullColorFadeAction(FastconController *controller)
+      : controller_(controller) {}
 
+  void set_light_id(uint8_t light_id) {
+    light_id_ = light_id;
+  }
+
+  void set_speed(uint8_t speed) {
+    speed_ = speed;
+  }
+
+  void set_current_color(uint8_t color) {
+    current_color_ = color;
+  }
+
+  void set_sequence_0(uint8_t value) { sequence_[0] = value; }
+  void set_sequence_1(uint8_t value) { sequence_[1] = value; }
+  void set_sequence_2(uint8_t value) { sequence_[2] = value; }
+  void set_sequence_3(uint8_t value) { sequence_[3] = value; }
+  void set_sequence_4(uint8_t value) { sequence_[4] = value; }
+  void set_sequence_5(uint8_t value) { sequence_[5] = value; }
+
+  void play() override;
+
+ protected:
+  FastconController *controller_;
+  uint8_t light_id_{0};
+  uint8_t speed_{1};
+  uint8_t current_color_{1};
+  uint8_t sequence_[6]{};
+};
+
+
+class FullColorFlashAction : public esphome::Action<> {
+ public:
+  explicit FullColorFlashAction(FastconController *controller)
+      : controller_(controller) {}
+
+  void set_light_id(uint8_t light_id) {
+    light_id_ = light_id;
+  }
+
+  void set_speed(uint8_t speed) {
+    speed_ = speed;
+  }
+
+  void set_current_color(uint8_t color) {
+    current_color_ = color;
+  }
+
+  void set_sequence_0(uint8_t value) { sequence_[0] = value; }
+  void set_sequence_1(uint8_t value) { sequence_[1] = value; }
+  void set_sequence_2(uint8_t value) { sequence_[2] = value; }
+  void set_sequence_3(uint8_t value) { sequence_[3] = value; }
+  void set_sequence_4(uint8_t value) { sequence_[4] = value; }
+  void set_sequence_5(uint8_t value) { sequence_[5] = value; }
+
+  void play() override;
+
+ protected:
+  FastconController *controller_;
+  uint8_t light_id_{0};
+  uint8_t speed_{1};
+  uint8_t current_color_{1};
+  uint8_t sequence_[6]{};
+};
 }  // namespace fastcon
 }  // namespace esphome
