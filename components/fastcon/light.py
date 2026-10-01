@@ -213,20 +213,12 @@ async def simple_color_fade_to_code(
 # Full Color helpers
 # =============================================================================
 
-COLOR_INDEX_SCHEMA = cv.int_range(
-    min=1,
-    max=7,
-)
-
+COLOR_INDEX_SCHEMA = cv.int_range(min=1, max=7)
+SEQUENCE_VALUE_SCHEMA = cv.int_range(min=0, max=7)
 
 SEQUENCE_SCHEMA = cv.All(
-    cv.ensure_list(
-        COLOR_INDEX_SCHEMA
-    ),
-    cv.Length(
-        min=6,
-        max=6,
-    ),
+    cv.ensure_list(SEQUENCE_VALUE_SCHEMA),
+    cv.Length(min=6, max=6),
 )
 
 
