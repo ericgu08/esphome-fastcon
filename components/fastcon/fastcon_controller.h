@@ -8,6 +8,7 @@
 #include "esphome/core/automation.h"
 #include "esphome/core/component.h"
 #include "esphome/components/light/light_state.h"
+#include "esphome/components/esp32_ble_server/ble_server.h"
 
 namespace esphome {
 namespace fastcon {
