@@ -46,8 +46,8 @@ void FastconController::queueCommand(
 
   ESP_LOGI(
       TAG,
-      "QUEUE t=%u ms light=%u size=%u",
-      millis(),
+      "QUEUE t=%lu ms light=%u size=%u",
+      (unsigned long)millis(),
       (unsigned) light_id_,
       (unsigned) data.size());
 
@@ -125,7 +125,7 @@ void FastconController::loop() {
       ESP_LOGI(
           TAG,
           "DEQUEUE t=%u ms queue=%u",
-          millis(),
+          (unsigned long)millis(),
           (unsigned) queue_.size());
 
 
@@ -270,8 +270,8 @@ void FastconController::loop() {
 
       ESP_LOGI(
           TAG,
-          "ADV_CONFIG t=%u ms size=%u manufacturer_len=%u rf=%u",
-          millis(),
+          "ADV_CONFIG t=%lu ms size=%u manufacturer_len=%u rf=%u",
+          (unsigned long)millis(),
           (unsigned) adv_data_len,
           (unsigned) manufacturer_ad_length,
           (unsigned) cmd.data.size());
@@ -305,8 +305,8 @@ void FastconController::loop() {
 
       ESP_LOGI(
           TAG,
-          "ADV_START t=%u ms",
-          millis());
+          "ADV_START t=%lu ms",
+          (unsigned long)millis());
 
       err =
           esp_ble_gap_start_advertising(
@@ -680,8 +680,10 @@ FastconController::effect_control(
   }
 
 
-  const auto hex_vec =
-      vector_to_hex_string(effect_data);
+std::vector<uint8_t> log_data = effect_data;
+
+const auto hex_vec =
+    vector_to_hex_string(log_data);
 
   const std::string hex(
       hex_vec.begin(),
@@ -859,26 +861,20 @@ void SimpleColorFadeAction::play() {
   }
 
 
-  std::vector<uint8_t> effect_data = {
-
-      0x48,
-
-      this->light_id_,
-
-      this->speed_,
-
-      static_cast<uint8_t>(
-          0x40 | this->color_),
-
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00
-  };
+std::vector<uint8_t> effect_data = {
+    0x48,
+    static_cast<uint8_t>(this->light_id_ & 0xFF),
+    this->speed_,
+    static_cast<uint8_t>(0x40 | this->color_),
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00
+};
 
 
   std::vector<uint8_t> payload =
@@ -955,27 +951,20 @@ void FullColorFadeAction::play() {
   }
 
 
-  std::vector<uint8_t> effect_data = {
-
-      0x98,
-
-      this->light_id_,
-
-      this->speed_,
-
-      static_cast<uint8_t>(
-          0x40 | this->current_color_),
-
-      this->sequence_[0],
-      this->sequence_[1],
-      this->sequence_[2],
-      this->sequence_[3],
-      this->sequence_[4],
-      this->sequence_[5],
-
-      0x00,
-      0x00
-  };
+std::vector<uint8_t> effect_data = {
+    0x98,
+    static_cast<uint8_t>(this->light_id_ & 0xFF),
+    this->speed_,
+    static_cast<uint8_t>(0x40 | this->current_color_),
+    this->sequence_[0],
+    this->sequence_[1],
+    this->sequence_[2],
+    this->sequence_[3],
+    this->sequence_[4],
+    this->sequence_[5],
+    0x00,
+    0x00
+};
 
 
   std::vector<uint8_t> payload =
