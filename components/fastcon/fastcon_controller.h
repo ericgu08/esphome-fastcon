@@ -140,21 +140,21 @@ class FastconSpeedNumber : public number::Number {
   }
 
   void set_initial_state(float value) {
-    initial_state_ = value;
+    uint8_t speed = static_cast<uint8_t>(value + 0.5f);
 
-    if (initial_state_ < 1.0f)
-      initial_state_ = 1.0f;
+    if (speed < 1)
+      speed = 1;
 
-    if (initial_state_ > 100.0f)
-      initial_state_ = 100.0f;
+    if (speed > 100)
+      speed = 100;
+
+    initial_state_ = speed;
 
     if (controller_ != nullptr) {
-      controller_->set_effect_speed(
-          light_id_,
-          static_cast<uint8_t>(initial_state_ + 0.5f));
-
-      publish_state(initial_state_);
+      controller_->set_effect_speed(light_id_, speed);
     }
+
+    publish_state(speed);
   }
 
  protected:
@@ -162,7 +162,7 @@ class FastconSpeedNumber : public number::Number {
 
   FastconController *controller_{nullptr};
   uint32_t light_id_{0};
-  float initial_state_{1.0f};
+  uint8_t initial_state_{1};
 };
 
 
