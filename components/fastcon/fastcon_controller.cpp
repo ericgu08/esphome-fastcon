@@ -643,7 +643,17 @@ std::vector<uint8_t> FastconController::generate_command(
 // ============================================================================
 // Speed number
 // ============================================================================
+void FastconSpeedNumber::setup() {
+  number::Number::setup();
 
+  if (controller_ != nullptr) {
+    controller_->set_effect_speed(
+        light_id_,
+        initial_state_);
+  }
+
+  publish_state(initial_state_);
+}
 void FastconSpeedNumber::control(float value) {
   uint8_t speed =
       static_cast<uint8_t>(
