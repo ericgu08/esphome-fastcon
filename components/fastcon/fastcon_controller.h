@@ -19,7 +19,6 @@ class FastconController : public Component {
  public:
   FastconController() = default;
 
-  void setup() override;
   void loop() override;
 
   std::vector<uint8_t> get_light_data(light::LightState *state);
