@@ -50,6 +50,4 @@ async def to_code(config):
 
     cg.add(var.set_controller(controller))
     cg.add(var.set_light_id(config[CONF_LIGHT_ID]))
-
-    # Set initial value
     cg.add(var.set_initial_state(config[CONF_INITIAL_STATE]))
