@@ -661,22 +661,6 @@ void FastconSpeedNumber::control(float value) {
 
   publish_state(speed);
 }
-void FastconSpeedNumber::setup() {
-  uint8_t speed =
-      static_cast<uint8_t>(initial_state_ + 0.5f);
-
-  if (speed < 1)
-    speed = 1;
-
-  if (speed > 100)
-    speed = 100;
-
-  controller_->set_effect_speed(
-      light_id_,
-      speed);
-
-  publish_state(speed);
-}
 
 // ============================================================================
 // Simple Color Fade
