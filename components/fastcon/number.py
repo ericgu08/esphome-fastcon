@@ -4,9 +4,9 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 
 from esphome.components import number
-from esphome.const import CONF_INITIAL_STATE
 
 from .fastcon_controller import FastconController
+
 
 CONF_CONTROLLER_ID = "controller_id"
 CONF_LIGHT_ID = "light_id"
@@ -18,19 +18,18 @@ FastconSpeedNumber = fastcon_ns.class_(
     number.Number,
 )
 
-CONFIG_SCHEMA = number.number_schema(FastconSpeedNumber).extend(
+
+CONFIG_SCHEMA = number.number_schema(
+    FastconSpeedNumber,
+    icon="mdi:speedometer",
+    unit_of_measurement="",
+).extend(
     {
         cv.Required(CONF_CONTROLLER_ID):
             cv.use_id(FastconController),
 
         cv.Required(CONF_LIGHT_ID):
             cv.int_range(min=1, max=255),
-
-        cv.Optional(
-            CONF_INITIAL_STATE,
-            default=40.0,
-        ):
-            cv.float_range(min=1.0, max=100.0),
     }
 ).extend(cv.COMPONENT_SCHEMA)
 
@@ -47,4 +46,3 @@ async def to_code(config):
 
     cg.add(var.set_controller(controller))
     cg.add(var.set_light_id(config[CONF_LIGHT_ID]))
-    cg.add(var.set_initial_state(config[CONF_INITIAL_STATE]))
