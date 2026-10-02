@@ -147,7 +147,25 @@ void FastconController::set_effect_speed(
       (unsigned long) light_id,
       (unsigned) speed);
 }
+void set_initial_state(float value) {
+  uint8_t speed = static_cast<uint8_t>(value + 0.5f);
 
+  if (speed < 1)
+    speed = 1;
+
+  if (speed > 100)
+    speed = 100;
+
+  initial_state_ = speed;
+
+  if (controller_ != nullptr) {
+    controller_->set_initial_effect_speed(
+        light_id_,
+        speed);
+  }
+
+  publish_state(speed);
+}
 
 uint8_t FastconController::get_effect_speed(
     uint32_t light_id) const {
@@ -171,7 +189,22 @@ uint8_t FastconController::get_effect_speed(
 void FastconController::setup() {
   // Default speed for all lights.
   effect_speeds_.fill(40);
+  // Apply YAML-defined initial speeds after the defaults.
+  for (size_t light_id = 0;
+       light_id < initial_effect_speed_set_.size();
+       light_id++) {
 
+    if (initial_effect_speed_set_[light_id]) {
+      effect_speeds_[light_id] =
+          initial_effect_speeds_[light_id];
+
+      ESP_LOGCONFIG(
+          TAG,
+          "  Initial effect speed: light=%u speed=%u",
+          (unsigned) light_id,
+          (unsigned) effect_speeds_[light_id]);
+    }
+  }
   ESP_LOGCONFIG(
       TAG,
       "Setting up Fastcon BLE Controller...");
