@@ -147,25 +147,6 @@ void FastconController::set_effect_speed(
       (unsigned long) light_id,
       (unsigned) speed);
 }
-void set_initial_state(float value) {
-  uint8_t speed = static_cast<uint8_t>(value + 0.5f);
-
-  if (speed < 1)
-    speed = 1;
-
-  if (speed > 100)
-    speed = 100;
-
-  initial_state_ = speed;
-
-  if (controller_ != nullptr) {
-    controller_->set_initial_effect_speed(
-        light_id_,
-        speed);
-  }
-
-  publish_state(speed);
-}
 
 uint8_t FastconController::get_effect_speed(
     uint32_t light_id) const {
@@ -676,17 +657,7 @@ std::vector<uint8_t> FastconController::generate_command(
 // ============================================================================
 // Speed number
 // ============================================================================
-void FastconSpeedNumber::setup() {
-  number::Number::setup();
 
-  if (controller_ != nullptr) {
-    controller_->set_effect_speed(
-        light_id_,
-        initial_state_);
-  }
-
-  publish_state(initial_state_);
-}
 void FastconSpeedNumber::control(float value) {
   uint8_t speed =
       static_cast<uint8_t>(
