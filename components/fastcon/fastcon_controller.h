@@ -139,11 +139,18 @@ class FastconSpeedNumber : public number::Number {
     light_id_ = light_id;
   }
 
+  void set_initial_state(float initial_state) {
+    initial_state_ = initial_state;
+  }
+
  protected:
+  void setup() override;
+
   void control(float value) override;
 
   FastconController *controller_{nullptr};
   uint32_t light_id_{0};
+  float initial_state_{40.0f};
 };
 
 
