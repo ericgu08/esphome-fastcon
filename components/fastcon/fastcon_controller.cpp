@@ -147,7 +147,33 @@ void FastconController::set_effect_speed(
       (unsigned long) light_id,
       (unsigned) speed);
 }
+void FastconController::set_initial_effect_speed(
+    uint32_t light_id,
+    uint8_t speed) {
 
+  if (light_id > 255) {
+    ESP_LOGW(
+        TAG,
+        "Invalid initial light ID %lu",
+        (unsigned long) light_id);
+    return;
+  }
+
+  if (speed < 1)
+    speed = 1;
+
+  if (speed > 100)
+    speed = 100;
+
+  initial_effect_speeds_[light_id] = speed;
+  initial_effect_speed_set_[light_id] = true;
+
+  ESP_LOGI(
+      TAG,
+      "Initial effect speed: light=%lu speed=%u",
+      (unsigned long) light_id,
+      (unsigned) speed);
+}
 uint8_t FastconController::get_effect_speed(
     uint32_t light_id) const {
 
