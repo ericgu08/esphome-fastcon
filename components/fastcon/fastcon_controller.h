@@ -149,13 +149,9 @@ class FastconSpeedNumber : public number::Number {
       speed = 100;
 
     initial_state_ = speed;
-
-    if (controller_ != nullptr) {
-      controller_->set_effect_speed(light_id_, speed);
-    }
-
-    publish_state(speed);
   }
+
+  void setup() override;
 
  protected:
   void control(float value) override;
@@ -164,7 +160,6 @@ class FastconSpeedNumber : public number::Number {
   uint32_t light_id_{0};
   uint8_t initial_state_{1};
 };
-
 
 // ============================================================================
 // Simple Color Fade
