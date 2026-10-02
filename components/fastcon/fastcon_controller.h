@@ -80,7 +80,7 @@ class FastconController : public Component {
   void set_effect_speed(uint32_t light_id, uint8_t speed);
 
   uint8_t get_effect_speed(uint32_t light_id) const;
-
+  void set_initial_effect_speed(uint32_t light_id, uint8_t speed);
  protected:
   struct Command {
     std::vector<uint8_t> data;
@@ -120,7 +120,8 @@ class FastconController : public Component {
   uint16_t adv_gap_{10};
 
   std::array<uint8_t, 256> effect_speeds_{};
-
+  std::array<uint8_t, 256> initial_effect_speeds_{};
+  std::array<bool, 256> initial_effect_speed_set_{};
   static const uint16_t MANUFACTURER_DATA_ID = 0xfff0;
 };
 
@@ -139,17 +140,25 @@ class FastconSpeedNumber : public number::Number {
     light_id_ = light_id;
   }
 
-  void set_initial_state(float value) {
-    uint8_t speed = static_cast<uint8_t>(value + 0.5f);
+void set_initial_state(float value) {
+  uint8_t speed = static_cast<uint8_t>(value + 0.5f);
 
-    if (speed < 1)
-      speed = 1;
+  if (speed < 1)
+    speed = 1;
 
-    if (speed > 100)
-      speed = 100;
+  if (speed > 100)
+    speed = 100;
 
-    initial_state_ = speed;
+  initial_state_ = speed;
+
+  if (controller_ != nullptr) {
+    controller_->set_initial_effect_speed(
+        light_id_,
+        speed);
   }
+
+  publish_state(speed);
+}
 
   void setup() override;
 
