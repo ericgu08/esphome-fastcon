@@ -10,6 +10,7 @@ from .fastcon_controller import FastconController
 
 CONF_CONTROLLER_ID = "controller_id"
 CONF_LIGHT_ID = "light_id"
+CONF_INITIAL_STATE = "initial_state"
 
 fastcon_ns = cg.esphome_ns.namespace("fastcon")
 
@@ -30,6 +31,9 @@ CONFIG_SCHEMA = number.number_schema(
 
         cv.Required(CONF_LIGHT_ID):
             cv.int_range(min=1, max=255),
+
+        cv.Optional(CONF_INITIAL_STATE, default=1):
+            cv.int_range(min=1, max=100),
     }
 ).extend(cv.COMPONENT_SCHEMA)
 
@@ -46,3 +50,6 @@ async def to_code(config):
 
     cg.add(var.set_controller(controller))
     cg.add(var.set_light_id(config[CONF_LIGHT_ID]))
+
+    # Set initial value
+    cg.add(var.set_initial_state(config[CONF_INITIAL_STATE]))
