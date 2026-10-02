@@ -160,8 +160,6 @@ void set_initial_state(float value) {
   publish_state(speed);
 }
 
-  void setup() override;
-
  protected:
   void control(float value) override;
 
