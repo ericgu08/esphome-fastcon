@@ -47,3 +47,4 @@ async def to_code(config):
 
     cg.add(var.set_controller(controller))
     cg.add(var.set_light_id(config[CONF_LIGHT_ID]))
+    cg.add(var.set_initial_state(config[CONF_INITIAL_STATE]))
