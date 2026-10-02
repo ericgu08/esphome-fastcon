@@ -171,6 +171,7 @@ BRMESH_COLORS = {
                 ),
         }
     ),
+    synchronous=True,
 )
 async def simple_color_fade_to_code(
     config,
@@ -257,6 +258,7 @@ SEQUENCE_SCHEMA = cv.All(
                 SEQUENCE_SCHEMA,
         }
     ),
+    synchronous=True,
 )
 async def full_color_fade_to_code(
     config,
@@ -368,6 +370,7 @@ async def full_color_fade_to_code(
                 SEQUENCE_SCHEMA,
         }
     ),
+    synchronous=True,
 )
 async def full_color_flash_to_code(
     config,
