@@ -19,6 +19,7 @@ class FastconController : public Component {
  public:
   FastconController() = default;
 
+  void setup() override;
   void loop() override;
 
   std::vector<uint8_t> get_light_data(light::LightState *state);
@@ -143,8 +144,6 @@ class FastconSpeedNumber : public number::Number {
   }
 
  protected:
-  void setup() override;
-
   void control(float value) override;
 
   FastconController *controller_{nullptr};
