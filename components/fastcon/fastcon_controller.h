@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <queue>
+#include <deque>
 #include <mutex>
 #include <vector>
 
@@ -83,6 +83,7 @@ class FastconController : public Component {
   void set_initial_effect_speed(uint32_t light_id, uint8_t speed);
  protected:
   struct Command {
+    uint32_t light_id;
     std::vector<uint8_t> data;
     uint32_t timestamp;
     uint8_t retries{0};
@@ -90,7 +91,7 @@ class FastconController : public Component {
     static constexpr uint8_t MAX_RETRIES = 3;
   };
 
-  std::queue<Command> queue_;
+  std::deque<Command> queue_;
   mutable std::mutex queue_mutex_;
 
   size_t max_queue_size_{100};
