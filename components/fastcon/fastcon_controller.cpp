@@ -101,7 +101,7 @@ void FastconController::queueCommand(
 
   queue_.push_back(cmd);
 
-  //ESP_LOGI(
+  //ESP_LOGV(
   //    TAG,
   //    "QUEUE t=%lu ms light=%u size=%u",
   //    (unsigned long) millis(),
@@ -149,7 +149,7 @@ void FastconController::set_effect_speed(
 
   effect_speeds_[light_id] = speed;
 
-  ESP_LOGI(
+  ESP_LOGV(
       TAG,
       "Effect speed: light=%lu speed=%u",
       (unsigned long) light_id,
@@ -176,7 +176,7 @@ void FastconController::set_initial_effect_speed(
   initial_effect_speeds_[light_id] = speed;
   initial_effect_speed_set_[light_id] = true;
 
-  ESP_LOGI(
+  ESP_LOGV(
       TAG,
       "Initial effect speed: light=%lu speed=%u",
       (unsigned long) light_id,
@@ -274,7 +274,7 @@ void FastconController::loop() {
       Command cmd = queue_.front();
       queue_.pop_front();
 
-      ESP_LOGI(
+      ESP_LOGV(
           TAG,
           "DEQUEUE t=%lu ms queue=%u",
           (unsigned long) millis(),
@@ -344,7 +344,7 @@ void FastconController::loop() {
 
       adv_data_len += cmd.data.size();
 
-      ESP_LOGI(
+      ESP_LOGV(
           TAG,
           "ADV_CONFIG t=%lu ms size=%u manufacturer_len=%u rf=%u",
           (unsigned long) millis(),
@@ -368,7 +368,7 @@ void FastconController::loop() {
         return;
       }
 
-      ESP_LOGI(
+      ESP_LOGV(
           TAG,
           "ADV_START t=%lu ms",
           (unsigned long) millis());
