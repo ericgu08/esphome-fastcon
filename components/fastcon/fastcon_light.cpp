@@ -1,3 +1,4 @@
+#include "esphome/core/hal.h"
 #include "esphome/core/log.h"
 #include "esphome/components/light/light_state.h"
 
@@ -5,7 +6,7 @@
 #include "fastcon_light.h"
 
 #ifndef FASTCON_VERSION
-#define FASTCON_VERSION "0.3.3-dev"
+#define FASTCON_VERSION "0.3.4-dev"
 #endif
 
 namespace esphome {
@@ -49,36 +50,59 @@ light::LightTraits FastconLight::get_traits() {
 }
 
 
+// -----------------------------------------------------------------------------
+// State output (rate limited)
+// -----------------------------------------------------------------------------
+//
+// write_state() est appelé à chaque cycle de boucle pendant une transition
+// logicielle. On n'envoie qu'une commande tous les min_send_interval_ms_ ;
+// entre-temps on mémorise l'état, et loop() envoie la dernière valeur dès que
+// l'intervalle est écoulé. La valeur finale d'une transition est donc toujours
+// transmise.
+//
 void FastconLight::write_state(light::LightState *state) {
+  const uint32_t now = millis();
+
+  if (now - this->last_send_ms_ >= this->min_send_interval_ms_) {
+    this->pending_state_ = nullptr;
+    this->send_state_(state);
+  } else {
+    // Trop tôt : loop() enverra la valeur la plus récente.
+    this->pending_state_ = state;
+  }
+}
+
+
+void FastconLight::loop() {
+  if (this->pending_state_ == nullptr)
+    return;
+
+  if (millis() - this->last_send_ms_ < this->min_send_interval_ms_)
+    return;
+
+  light::LightState *state = this->pending_state_;
+  this->pending_state_ = nullptr;
+  this->send_state_(state);
+}
+
+
+void FastconLight::send_state_(light::LightState *state) {
   if (this->controller_ == nullptr) {
     ESP_LOGW(TAG, "No controller bound; dropping command");
     return;
   }
 
-  std::vector<uint8_t> light_bytes;
+  this->last_send_ms_ = millis();
+
   auto &values = state->current_values;
 
-  bool is_white_only =
+  const bool is_white_only =
       values.get_color_mode() == light::ColorMode::WHITE;
 
-  if (is_white_only) {
-    ESP_LOGD(
-        TAG,
-        "Sending white-only command for light %u",
-        (unsigned) this->light_id_);
-
-    light_bytes =
-        this->controller_->get_white_light_data(state);
-
-  } else {
-    ESP_LOGD(
-        TAG,
-        "Sending RGB/color command for light %u",
-        (unsigned) this->light_id_);
-
-    light_bytes =
-        this->controller_->get_light_data(state);
-  }
+  std::vector<uint8_t> light_bytes =
+      is_white_only
+          ? this->controller_->get_white_light_data(state)
+          : this->controller_->get_light_data(state);
 
   std::vector<uint8_t> payload =
       this->controller_->single_control(
@@ -94,11 +118,12 @@ void FastconLight::write_state(light::LightState *state) {
       this->light_id_,
       payload);
 
-  ESP_LOGD(
+  ESP_LOGV(
       TAG,
-      "Queued state v%s: light_id=%u, payload_len=%d",
+      "Queued state v%s: light_id=%u, %s, payload_len=%d",
       FASTCON_VERSION,
       (unsigned) this->light_id_,
+      is_white_only ? "white" : "rgb",
       (int) payload.size());
 }
 
