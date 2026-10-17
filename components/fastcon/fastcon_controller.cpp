@@ -529,29 +529,24 @@ std::vector<uint8_t> FastconController::get_white_light_data(
   if (!state->current_values.is_on())
     return {0x00};
 
-  // Luminosité cible en "niveaux" de 0 à 127
-  const float b = std::min(std::max(
-      state->current_values.get_brightness(), 0.0f), 1.0f);
-  const float target = b * 127.0f;
-
-  // Octet de luminosité : le plus petit niveau qui couvre la cible
-  const int level = std::max(1, std::min(127,
-      static_cast<int>(std::ceil(target))));
-
-  // La fraction restante (0..1) est appliquée sur les canaux blancs
-  const float frac = std::min(target / static_cast<float>(level), 1.0f);
-  const uint8_t white = static_cast<uint8_t>(std::lround(127.0f * frac));
+  const uint8_t brightness =
+      static_cast<uint8_t>(
+          0x80 |
+          std::min(
+              static_cast<int>(
+                  state->current_values.get_brightness() *
+                  127.0f),
+              127));
 
   return {
-      static_cast<uint8_t>(0x80 | level),
+      brightness,
       0,
       0,
       0,
-      white,
-      white,
+      127,
+      127,
   };
 }
-
 
 // ============================================================================
 // Single light control
