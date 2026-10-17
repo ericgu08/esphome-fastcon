@@ -118,8 +118,9 @@ void FastconController::queueCommand(
 void FastconController::clear_queue() {
   std::lock_guard<std::mutex> lock(queue_mutex_);
 
-  std::queue<Command> empty;
-  std::swap(queue_, empty);
+  //std::deque<Command> empty;
+  //std::swap(queue_, empty);
+  queue_.clear();
 }
 
 
@@ -271,7 +272,7 @@ void FastconController::loop() {
         return;
 
       Command cmd = queue_.front();
-      queue_.pop();
+      queue_.pop_front();
 
       ESP_LOGI(
           TAG,
