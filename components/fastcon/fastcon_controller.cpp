@@ -405,7 +405,7 @@ void FastconController::loop() {
       bool pending;
       { std::lock_guard<std::mutex> lock(queue_mutex_); pending = !queue_.empty(); }
 
-      if (elapsed >= adv_duration_ || (pending && elapsed >= 100 /* min burst */)) {
+      if (elapsed >= adv_duration_ || (pending && elapsed >= 50 /* min burst */)) {
         esp_ble_gap_stop_advertising();
         adv_state_ = AdvertiseState::GAP;
         state_start_time_ = now;
