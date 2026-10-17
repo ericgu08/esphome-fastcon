@@ -77,7 +77,7 @@ class FastconLight : public Component, public light::LightOutput {
   // Envoi différé : limite le débit de write_state tout en garantissant
   // que la dernière valeur est toujours envoyée.
   uint32_t last_send_ms_{0};
-  uint16_t min_send_interval_ms_{60};
+  uint16_t min_send_interval_ms_{100};
   light::LightState *pending_state_{nullptr};
 };
 
