@@ -77,34 +77,41 @@ void FastconController::queueCommand(
 
   std::lock_guard<std::mutex> lock(queue_mutex_);
 
-  if (queue_.size() >= max_queue_size_) {
-    ESP_LOGW(
-        TAG,
-        "Command queue full (size=%d), dropping command for light %d",
-        (int) queue_.size(),
-        (int) light_id_);
+  //if (queue_.size() >= max_queue_size_) {
+  //  ESP_LOGW(
+  //      TAG,
+  //      "Command queue full (size=%d), dropping command for light %d",
+  //      (int) queue_.size(),
+  //      (int) light_id_);
+  //
+  //  return;
+  //}
+  // remplace toute commande en attente pour la même lampe
+  queue_.erase(std::remove_if(queue_.begin(), queue_.end(),
+      [&](const Command &c) { return c.light_id == light_id_; }), queue_.end());
 
-    return;
-  }
+  if (queue_.size() >= max_queue_size_) queue_.pop_front();  // jeter la plus vieille
+
 
   Command cmd;
+  cmd.light_id = light_id_;
   cmd.data = data;
   cmd.timestamp = millis();
   cmd.retries = 0;
 
-  queue_.push(cmd);
+  queue_.push_back(cmd);
 
-  ESP_LOGI(
-      TAG,
-      "QUEUE t=%lu ms light=%u size=%u",
-      (unsigned long) millis(),
-      (unsigned) light_id_,
-      (unsigned) data.size());
+  //ESP_LOGI(
+  //    TAG,
+  //    "QUEUE t=%lu ms light=%u size=%u",
+  //    (unsigned long) millis(),
+  //    (unsigned) light_id_,
+  //    (unsigned) data.size());
 
-  ESP_LOGV(
-      TAG,
-      "Command queued, queue size: %d",
-      (int) queue_.size());
+  //ESP_LOGV(
+  //    TAG,
+  //    "Command queued, queue size: %d",
+  //    (int) queue_.size());
 }
 
 
@@ -393,18 +400,15 @@ void FastconController::loop() {
     // ------------------------------------------------------------------------
 
     case AdvertiseState::ADVERTISING: {
-      if (now - state_start_time_ >= adv_duration_) {
+        const uint32_t elapsed = now - state_start_time_;
+      bool pending;
+      { std::lock_guard<std::mutex> lock(queue_mutex_); pending = !queue_.empty(); }
 
+      if (elapsed >= adv_duration_ || (pending && elapsed >= 150 /* min burst */)) {
         esp_ble_gap_stop_advertising();
-
         adv_state_ = AdvertiseState::GAP;
         state_start_time_ = now;
-
-        ESP_LOGV(
-            TAG,
-            "Stopped advertising, entering gap period");
       }
-
       break;
     }
 
